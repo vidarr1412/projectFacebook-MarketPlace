@@ -1,115 +1,172 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { supabase } from '../lib/supabaseClient'
+import { Card, CardContent } from '../components/ui/card'
+import { Button } from '../components/ui/button'
+import SearchBar from '../components/ui/search-bar'
+import { Label } from '../components/ui/label'
+import { Select } from '../components/ui/select'
 
 export default function Home() {
+  const [listings, setListings] = useState([])
+  const [originalListings, setOriginalListings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [priceFilter, setPriceFilter] = useState("all")
+  const [dateFilter, setDateFilter] = useState("latest")
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      if (!error) {
+        setListings(data)
+        setOriginalListings(data)
+      }
+
+      setLoading(false)
+    }
+
+    fetchListings()
+  }, [])
+
+  useEffect(() => {
+    let filtered = [...originalListings]
+
+    if (searchQuery.trim() !== "") {
+      filtered = filtered.filter((listing) =>
+        listing.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    if (priceFilter === "low") {
+      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
+    } else if (priceFilter === "high") {
+      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+    }
+
+    if (dateFilter === "latest") {
+      filtered = [...filtered].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      )
+    } else if (dateFilter === "oldest") {
+      filtered = [...filtered].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      )
+    }
+
+    setListings(filtered)
+  }, [searchQuery, priceFilter, dateFilter, originalListings])
+
+  const categoryList = ["Electronics", "Clothing", "Books", "Home", "Toys", "Food"]
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-[#18191a] text-white py-8 px-4">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
+        
+        {/* Sidebar Filters */}
+        <div className="w-full max-w-[220px] space-y-6">
+          
+          {/* Search */}
+          <SearchBar onSearch={setSearchQuery} />
+
+          {/* Price Filter */}
+          <div className="border border-[#3a3b3c] bg-[#242526] p-4 rounded-md space-y-2">
+            <h2 className="text-lg font-semibold mb-2">Create New Listing</h2>
+
+            <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+              <Link href="/create">Choose Listing Type</Link>
+            </Button>
+
+            <Button disabled className="w-full bg-[#3a3b3c] text-white cursor-not-allowed">
+              Your Listings
+            </Button>
+
+            <Button disabled className="w-full bg-[#3a3b3c] text-white cursor-not-allowed">
+              Seller Help
+            </Button>
+       
+          <div className="flex flex-col items-start">
+            
+            <Label htmlFor="price-filter" className="text-xs text-gray-300 mb-1">Price</Label>
+            <Select
+              id="price-filter"
+              value={priceFilter}
+              onChange={(e) => setPriceFilter(e.target.value)}
+              className="w-full"
+            >
+              <option value="all">All</option>
+              <option value="low">Lowest</option>
+              <option value="high">Highest</option>
+            </Select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="flex flex-col items-start">
+            <Label htmlFor="date-filter" className="text-xs text-gray-300 mb-1">Date</Label>
+            <Select
+              id="date-filter"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full"
+            >
+              <option value="latest">Latest</option>
+              <option value="oldest">Oldest</option>
+            </Select>
+          </div>
+
+          {/* Category List */}
+          <div className="flex flex-col items-start">
+            <Label className="text-xs text-gray-300 mb-2">Categories</Label>
+            <ul className="space-y-1 text-sm text-white">
+              {categoryList.map((cat) => (
+                <li key={cat} className="cursor-pointer hover:underline">
+                  {cat}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Create New Listing Section */}
+             </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Main Listings */}
+        <div className="flex-1">
+          {loading ? (
+            <p className="text-center text-gray-400 text-lg">Loading listings...</p>
+          ) : listings.length === 0 ? (
+            <p className="text-center text-gray-400 text-lg">No listings found.</p>
+          ) : (
+            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {listings.map((listing) => (
+                <Link key={listing.id} href={`/listing/${listing.id}`}>
+                  <Card className="bg-[#242526] hover:shadow-xl transition-shadow rounded-md cursor-pointer">
+                    <img
+                      src={listing.image_url}
+                      alt={listing.title}
+                      className="w-full h-44 object-cover"
+                      onError={(e) => (e.target.src = '/placeholder.jpg')}
+                    />
+                    <CardContent className="p-2">
+                      <p className="text-white font-semibold text-sm mb-1">
+                        PHP{parseFloat(listing.price).toLocaleString()}
+                      </p>
+                      <p className="text-white text-sm leading-tight truncate">
+                        {listing.title}
+                      </p>
+                      <p className="text-gray-400 text-xs">{listing.category}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-  );
+  )
 }
