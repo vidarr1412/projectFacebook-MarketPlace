@@ -119,15 +119,23 @@ export default function CreateListing() {
           </div>
 
           {/* Category */}
-          <div>
-            <label className="block mb-1 text-sm">Category</label>
-            <input
-              type="text"
-              required
-              className="w-full bg-[#3a3b3c] border border-[#555] text-white p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            />
-          </div>
+    <div>
+  <label className="block mb-1 text-sm">Category</label>
+  <select
+    required
+    className="w-full bg-[#3a3b3c] border border-[#555] text-white p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+    onChange={(e) => setForm({ ...form, category: e.target.value })}
+    defaultValue=""
+  >
+    <option value="" disabled>Select a category</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Books">Books</option>
+    <option value="Home">Home</option>
+    <option value="Toys">Toys</option>
+    <option value="Food">Food</option>
+  </select>
+</div>
 
           {/* Image Upload */}
           <div>
