@@ -3,3 +3,4 @@
 @theme {
   --font-display: ui-sans-serif, system-ui, sans-serif;
 }
+@custom-variant dark (&:where(.dark, .dark *));
