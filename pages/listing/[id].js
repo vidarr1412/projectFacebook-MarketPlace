@@ -89,9 +89,13 @@ export default function ListingDetail() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
+                 <a href="/" className="flex items-center gap-2">
                 <div className="bg-blue-600 w-8 h-8 flex items-center justify-center text-white font-bold rounded-full ml-[25px]">F</div>
                 <h1 className="text-lg font-semibold">Marketplace</h1>
+                   </a>
               </div>
+              
+           
       
               <div className="flex items-center gap-3 mr-[50px]">
                 <button  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">

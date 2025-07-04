@@ -2,6 +2,8 @@ import { useState,useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabaseClient'
 import { v4 as uuidv4 } from 'uuid'
+import { FiSun, FiMoon, FiBell, FiUser, FiSearch, FiPlusCircle } from 'react-icons/fi'
+import { FiArchive, FiHelpCircle } from 'react-icons/fi'
 
 export default function CreateListing() {
   const [form, setForm] = useState({
@@ -84,8 +86,35 @@ export default function CreateListing() {
 
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] py-10 px-4 text-black">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+         {/* Header */}
+         <header className="h-14 bg-white dark:bg-gray-800 flex items-center justify-between px-4 sm:px-6 shadow-sm border-b border-gray-200 dark:border-gray-700">
+           <div className="flex items-center gap-2">
+             <button className="sm:hidden p-1" onClick={() => setMenuOpen(!menuOpen)}>
+               <svg className="h-6 w-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+               </svg>
+             </button>
+            <a href="/" className="flex items-center gap-2">
+             <div className="bg-blue-600 w-8 h-8 flex items-center justify-center text-white font-bold rounded-full ml-[25px]">F</div>
+             <h1 className="text-lg font-semibold">Marketplace</h1>
+             </a>
+           </div>
+   
+           <div className="flex items-center gap-3 mr-[50px]">
+             <button  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+              
+             </button>
+             <div className="hidden sm:flex items-center gap-4">
+               <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                 <FiBell className="text-gray-600 dark:text-white text-lg" />
+               </button>
+               <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-semibold text-gray-700 dark:text-white">
+                 <FiUser />
+               </div>
+             </div>
+           </div>
+         </header><div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
         {/* Left Form */}
         <div className="w-full lg:w-1/2 ">
           <h1 className="text-2xl font-bold mb-6">Marketplace</h1>
