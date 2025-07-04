@@ -18,7 +18,7 @@ export default function Home() {
   const categoryList = [
     'Vehicles', 'Property Rentals', 'Apparel', 'Classifieds',
     'Electronics', 'Entertainment', 'Family', 'Free Stuff',
-    'Garden & Outdoor', 'Hobbies', 'Home Goods', 'Home Improvement',
+    'Garden & Outdoor', 'Hobbies'
     
   ]
 
