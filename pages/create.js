@@ -1,9 +1,12 @@
-import { useState,useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabaseClient'
 import { v4 as uuidv4 } from 'uuid'
-import { FiSun, FiMoon, FiBell, FiUser, FiSearch, FiPlusCircle } from 'react-icons/fi'
-import { FiArchive, FiHelpCircle } from 'react-icons/fi'
+import {
+  FiBell,
+  FiUser,
+  FiArrowLeft,
+} from 'react-icons/fi'
 
 export default function CreateListing() {
   const [form, setForm] = useState({
@@ -19,6 +22,7 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false)
   const router = useRouter()
   const fileInputRef = useRef(null)
+
   const handleUpload = async () => {
     if (!image) throw new Error('No image selected.')
     const fileExt = image.name.split('.').pop()
@@ -50,13 +54,11 @@ export default function CreateListing() {
     try {
       const imageUrl = await handleUpload()
 
-      const { error } = await supabase.from('listings').insert([
-        {
-          ...form,
-          price: parseFloat(form.price),
-          image_url: imageUrl,
-        },
-      ])
+      const { error } = await supabase.from('listings').insert([{
+        ...form,
+        price: parseFloat(form.price),
+        image_url: imageUrl,
+      }])
 
       if (error) throw error
       router.push('/')
@@ -66,6 +68,7 @@ export default function CreateListing() {
       setUploading(false)
     }
   }
+
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -84,83 +87,79 @@ export default function CreateListing() {
     fileInputRef.current.click()
   }
 
-
   return (
-     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
-         {/* Header */}
-         <header className="h-14 bg-white dark:bg-gray-800 flex items-center justify-between px-4 sm:px-6 shadow-sm border-b border-gray-200 dark:border-gray-700">
-           <div className="flex items-center gap-2">
-             <button className="sm:hidden p-1" onClick={() => setMenuOpen(!menuOpen)}>
-               <svg className="h-6 w-6 text-gray-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-               </svg>
-             </button>
-            <a href="/" className="flex items-center gap-2">
-             <div className="bg-blue-600 w-8 h-8 flex items-center justify-center text-white font-bold rounded-full ml-[25px]">F</div>
-             <h1 className="text-lg font-semibold">Marketplace</h1>
-             </a>
-           </div>
-   
-           <div className="flex items-center gap-3 mr-[50px]">
-             <button  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
-              
-             </button>
-             <div className="hidden sm:flex items-center gap-4">
-               <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                 <FiBell className="text-gray-600 dark:text-white text-lg" />
-               </button>
-               <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-semibold text-gray-700 dark:text-white">
-                 <FiUser />
-               </div>
-             </div>
-           </div>
-         </header><div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+      {/* Header */}
+      <header className="h-14 bg-white dark:bg-gray-800 flex items-center justify-between px-4 sm:px-6 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2">
+            <div className="bg-blue-600 w-8 h-8 flex items-center justify-center text-white font-bold rounded-full">F</div>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Marketplace</h1>
+          </a>
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+            <FiBell className="text-gray-600 dark:text-white text-lg" />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-semibold text-gray-700 dark:text-white">
+            <FiUser />
+          </div>
+        </div>
+      </header>
+
+      {/* Go Back Button - always above title */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6">
+        <a
+          href="/"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium mb-4"
+        >
+          <FiArrowLeft />
+          Go back to Home
+        </a>
+      </div>
+
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 px-4 sm:px-6 pb-10">
         {/* Left Form */}
-        <div className="w-full lg:w-1/2 ">
+        <div className="w-full lg:w-1/2">
           <h1 className="text-2xl font-bold mb-6">Marketplace</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Image Upload */}
-           <div className="mb-4">
-      <label className="block mb-2 font-medium">Photos</label>
+            <div>
+              <label className="block mb-2 font-medium">Photos</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+              />
+              {!previewUrl && (
+                <div
+                  onClick={triggerFileSelect}
+                  className="cursor-pointer w-40 h-40 bg-gray-200 border-2 border-dashed border-gray-400 rounded flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
+                >
+                  <span className="text-sm font-medium">Upload Photo</span>
+                </div>
+              )}
+              {previewUrl && (
+                <div className="relative w-full h-40 mt-2">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded border shadow"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-opacity-80"
+                    title="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
 
-      {/* Hidden File Input */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-      />
-
-      {/* Upload Image Button */}
-      {!previewUrl && (
-        <div
-          onClick={triggerFileSelect}
-          className="cursor-pointer w-40 h-40 bg-gray-200 border-2 border-dashed border-gray-400 rounded flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
-        >
-          <span className="text-sm font-medium">Upload Photo</span>
-        </div>
-      )}
-
-      {/* Image Preview */}
-      {previewUrl && (
-        <div className="relative w-full h-40 mt-2">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="w-full h-full object-cover rounded border shadow"
-          />
-          <button
-            type="button"
-            onClick={handleRemoveImage}
-            className="absolute top-1 right-1 bg-black bg-opacity-60 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-opacity-80"
-            title="Remove image"
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </div>
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
@@ -168,33 +167,30 @@ export default function CreateListing() {
                 type="text"
                 required
                 placeholder="What are you selling?"
-                className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full"
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800"
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
             </div>
 
             {/* Category */}
-            {/* Category */} 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-  <select
-    required
-    className="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-    onChange={(e) => setForm({ ...form, category: e.target.value })}
-    defaultValue=""
-  >
-    <option value="" disabled>Select a category</option>
-    {[
-       'Vehicles', 'Property Rentals', 'Apparel', 'Classifieds',
-    'Electronics', 'Entertainment', 'Family', 'Free Stuff',
-    'Garden & Outdoor', 'Hobbies'
-    
-    ].map((cat) => (
-      <option key={cat} value={cat}>{cat}</option>
-    ))}
-  </select>
-</div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <select
+                required
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800"
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                defaultValue=""
+              >
+                <option value="" disabled>Select a category</option>
+                {[
+                  'Vehicles', 'Property Rentals', 'Apparel', 'Classifieds',
+                  'Electronics', 'Entertainment', 'Family', 'Free Stuff',
+                  'Garden & Outdoor'
+                ].map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Price */}
             <div>
@@ -202,7 +198,7 @@ export default function CreateListing() {
               <input
                 type="number"
                 required
-               className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full"
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800"
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
               />
             </div>
@@ -213,7 +209,7 @@ export default function CreateListing() {
               <input
                 type="text"
                 value={form.location}
-               className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full"
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800"
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
               />
             </div>
@@ -225,8 +221,8 @@ export default function CreateListing() {
                 type="email"
                 required
                 placeholder="your@email.com"
-                className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full"
-               onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800"
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
             </div>
 
@@ -235,7 +231,7 @@ export default function CreateListing() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
               <textarea
                 required
-                className="w-full bg-gray-100 p-2 rounded border resize-none"
+                className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 resize-none"
                 rows={4}
                 placeholder="Describe your item..."
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -246,9 +242,7 @@ export default function CreateListing() {
             <button
               type="submit"
               disabled={uploading}
-              className={`w-full py-3 rounded text-white font-medium transition ${
-                uploading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className={`w-full py-3 rounded text-white font-medium transition ${uploading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               {uploading ? 'Uploading...' : 'Create Listing'}
             </button>
@@ -258,10 +252,10 @@ export default function CreateListing() {
         {/* Right Preview */}
         <div className="w-full lg:w-1/2">
           <h2 className="text-xl font-bold mb-4">Preview</h2>
-          <div className="bg-white rounded-lg  h-185 p-4">
+          <div className="bg-white rounded-lg h-185 p-4">
             <div className="h-60 bg-gray-100 flex items-center justify-center overflow-hidden h-120">
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="object-cover  h-120 w-full" />
+                <img src={previewUrl} alt="Preview" className="object-cover h-120 w-full" />
               ) : (
                 <div className="text-gray-400 italic">No image selected</div>
               )}
